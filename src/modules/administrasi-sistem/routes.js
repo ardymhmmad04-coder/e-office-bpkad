@@ -1,10 +1,12 @@
 import { placeholder } from '../_shared/placeholder'
 
 export default [
-  placeholder('sistem/pengguna', 'pengguna', {
-    modul: 'pengguna', judul: 'Pengguna dan hak akses', tahap: 1,
-    deskripsi: 'Kelola pengguna, role, permission, dan hak tambahan per pengguna. Modul pertama yang disarankan untuk dibangun karena modul lain bergantung padanya.',
-  }),
+  {
+    path: 'sistem/pengguna',
+    name: 'pengguna',
+    component: () => import('./views/PenggunaView.vue'),
+    meta: { modul: 'pengguna', judul: 'Pengguna dan hak akses' },
+  },
   placeholder('sistem/organisasi', 'organisasi', {
     modul: 'organisasi', judul: 'Struktur organisasi', tahap: 1,
     deskripsi: 'Hierarki unit kerja. Cakupan data "unit kerja" mengikuti struktur ini, termasuk unit di bawahnya.',

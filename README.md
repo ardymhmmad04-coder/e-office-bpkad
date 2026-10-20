@@ -35,6 +35,19 @@ Deploy: hubungkan repo ke Vercel, isi dua variabel env yang sama. `vercel.json` 
 | 15_kepegawaian | pegawai (ASN/PPPK/PJLP), cuti, alokasi cuti, pengaturan, foto & logo | 1 |
 | 16_seed_unit_kerja | struktur organisasi BPKAD (dari daftar UNITS E-Kepegawaian) | 1 |
 | migrasi/17_migrasi_ekepegawaian | memindahkan data lama (jalankan blok demi blok, hanya sekali) | 1 |
+| 18_pengguna | fungsi pendukung modul Pengguna + pengaman anti-terkunci | 1 |
+
+## Pengguna dan hak akses
+
+Halaman `Sistem > Pengguna dan hak akses` (butuh hak `pengguna`):
+- **Pengguna:** cari/filter, ubah nama, NIP, jabatan, unit kerja, status aktif; tautkan akun ke data pegawai;
+  atur role; beri hak tambahan per pengguna; lihat hak efektif.
+- **Role dan hak akses:** matriks modul x tindakan x cakupan per role, tambah/ubah/hapus role kustom.
+- Akun baru tetap dibuat di Supabase (Authentication > Users). Membuat akun dari aplikasi memerlukan
+  Edge Function dengan service role; belum dibuat.
+- Pengaman: Super Admin terakhir tidak bisa dicabut atau dinonaktifkan, dan hak "kelola pengguna" milik
+  Super Admin terkunci. Pengaman ini tidak berlaku di SQL Editor sehingga keadaan darurat tetap bisa diperbaiki.
+- Perubahan hak akses role baru berlaku bagi pengguna yang sedang login setelah mereka memuat ulang halaman.
 
 ## Kepegawaian (hasil peleburan E-Kepegawaian)
 
