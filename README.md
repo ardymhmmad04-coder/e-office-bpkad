@@ -32,9 +32,32 @@ Deploy: hubungkan repo ke Vercel, isi dua variabel env yang sama. `vercel.json` 
 | 12_kendaraan | kendaraan dinas | 2 |
 | 13_layanan_umum | ATK, sarana prasarana, laporan kerusakan | 2 |
 | 14_storage | bucket file + policy | 2 |
+| 15_kepegawaian | pegawai (ASN/PPPK/PJLP), cuti, alokasi cuti, pengaturan, foto & logo | 1 |
+| 16_seed_unit_kerja | struktur organisasi BPKAD (dari daftar UNITS E-Kepegawaian) | 1 |
+| migrasi/17_migrasi_ekepegawaian | memindahkan data lama (jalankan blok demi blok, hanya sekali) | 1 |
 
-Tabel Kepegawaian (data pegawai, cuti, KGB, kenaikan pangkat, pensiun) belum ada di sini:
-akan disusun setelah skema E-Kepegawaian yang sudah berjalan dikirim, agar tidak menebak kolom.
+## Kepegawaian (hasil peleburan E-Kepegawaian)
+
+- Tabel `asn`, `pppk`, `pjlp` digabung menjadi satu tabel `pegawai` (kolom `jenis`). Nama kolom lama dipertahankan.
+- KGB, kenaikan pangkat, dan pensiun tetap **dihitung** dari kolom pegawai (tmt_kgb, tmt_pangkat, NIP, batas_usia_pensiun), bukan tabel terpisah.
+- Alur cuti memakai status lama: draft, step1, step2, approved, rejected, cancelled. Pegawai dapat membuat dan mengajukan cuti
+  sendiri; petugas (PROCESS) atau pejabat (APPROVE) menggerakkan step1/step2; **persetujuan akhir hanya APPROVE**
+  dan memberi nomor surat `NNN/CUTI/BPKAD/<tahun>` secara atomik (nomor lama dilanjutkan oleh skrip migrasi).
+- Token Fonnte tidak lagi disimpan di tabel yang bisa dibaca klien. Simpan di `pengaturan_rahasia` (tanpa policy,
+  hanya service role); pengiriman WhatsApp sebaiknya lewat Edge Function.
+- Akun login ditautkan ke pegawai lewat `profiles.pegawai_id` (satu akun satu pegawai).
+
+### Memindahkan data dari E-Kepegawaian lama
+
+1. Gunakan project Supabase **baru** untuk E-Office (jangan jalankan 01-16 di project lama: tabel `profiles` lama
+   berbeda bentuk dan akan bentrok).
+2. Ekspor CSV dari project lama: asn, pppk, pjlp, cuti, alokasi_cuti, settings. Impor di project baru dengan nama
+   `legacy_asn`, `legacy_pppk`, `legacy_pjlp`, `legacy_cuti`, `legacy_alokasi_cuti`, `legacy_settings`.
+3. Jalankan `sql/16_seed_unit_kerja.sql`, lalu `sql/migrasi/17_migrasi_ekepegawaian.sql` blok demi blok.
+   Blok E menampilkan pegawai yang unitnya belum terpetakan dan baris yatim yang dilewati.
+4. Buat ulang akun login di Authentication > Users, lalu tautkan (Blok F). Kata sandi lama tidak ikut dipindahkan.
+5. Foto lama tetap berupa URL di project lama (kolom `foto`); jangan hapus project lama sebelum foto dipindahkan.
+   Riwayat `activity_log` lama tidak dimigrasi: simpan sebagai arsip.
 
 ## Model hak akses
 
@@ -67,6 +90,7 @@ di unit induk teratas sehingga otomatis mencakup seluruh unit.
 - Persetujuan ruang rapat, ATK, dan sarana oleh Admin/Operator; cuti/KGB/kenaikan pangkat/pensiun, kendaraan, dan berita oleh Pimpinan.
 - "Sarana dan prasarana" dimodelkan sebagai permintaan layanan (bukan inventaris).
 - Pensiun ada di struktur menu tetapi tidak masuk tahap mana pun di roadmap.
+- Persetujuan akhir cuti saya set ke pejabat (APPROVE), sesuai alur di dokumen gambaran umum. Di E-Kepegawaian lama persetujuan akhir dilakukan Admin; bila ingin tetap begitu, beri Admin/Operator hak APPROVE pada modul cuti.
 
 ## Struktur
 
