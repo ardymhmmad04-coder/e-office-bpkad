@@ -59,6 +59,19 @@ tambah unit atau sub unit, ubah nama/kode/induk/status, atur urutan (naik/turun)
   Tanpa pengaman ini, menghapus unit mengosongkan unit kerja semua akun di dalamnya dan cakupan datanya hilang diam-diam.
 - Kode unit dipakai pada nomor surat; isi kode untuk unit yang akan dipakai di format nomor.
 
+## Data pegawai
+
+Halaman `Kepegawaian > Data pegawai` (hak `pegawai`): daftar ASN/PPPK/PJLP dengan tab jenis, pencarian, filter unit kerja
+(termasuk unit di bawahnya), filter status, dan paginasi.
+- **Hak penuh (PROCESS, mis. Admin/Operator):** tambah dan ubah semua kolom sesuai jenis pegawai.
+- **Pegawai biasa (EDIT cakupan sendiri):** hanya nomor HP, email, dan foto sendiri (dijaga juga oleh trigger database).
+- **Hapus** hanya untuk pemegang hak DELETE dan ikut menghapus riwayat cuti; untuk pegawai yang tidak lagi bertugas gunakan Nonaktif.
+- **Foto** disimpan di bucket privat `foto-pegawai` (diperkecil otomatis di browser). Foto lama dari E-Kepegawaian
+  berupa URL tetap tampil selama project lama masih aktif.
+- Pegawai hasil migrasi yang unitnya belum terpetakan ditandai "(belum dipetakan)"; filter "Belum punya unit kerja"
+  membantu melengkapinya.
+- Belum ada: impor/ekspor Excel, serta halaman KGB, Kenaikan pangkat, dan Pensiun (dihitung dari data di halaman ini).
+
 ## Kepegawaian (hasil peleburan E-Kepegawaian)
 
 - Tabel `asn`, `pppk`, `pjlp` digabung menjadi satu tabel `pegawai` (kolom `jenis`). Nama kolom lama dipertahankan.

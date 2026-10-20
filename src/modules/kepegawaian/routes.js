@@ -3,10 +3,12 @@ import { placeholder } from '../_shared/placeholder'
 const dasar = 'Hasil peleburan E-Kepegawaian. Tabel dan aturan alurnya sudah siap di sql/15_kepegawaian.sql. '
 
 export default [
-  placeholder('kepegawaian/pegawai', 'pegawai', {
-    modul: 'pegawai', judul: 'Data pegawai', tahap: 1,
-    deskripsi: dasar + 'ASN, PPPK, dan PJLP kini dalam satu tabel (kolom jenis).',
-  }),
+  {
+    path: 'kepegawaian/pegawai',
+    name: 'pegawai',
+    component: () => import('./views/PegawaiView.vue'),
+    meta: { modul: 'pegawai', judul: 'Data pegawai' },
+  },
   placeholder('kepegawaian/cuti', 'cuti', {
     modul: 'cuti', judul: 'Cuti', tahap: 1,
     deskripsi: dasar + 'Alur: draf, Kasubbag, Kabid, lalu persetujuan akhir pejabat dengan nomor surat otomatis.',
