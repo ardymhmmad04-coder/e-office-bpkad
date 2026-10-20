@@ -36,6 +36,7 @@ Deploy: hubungkan repo ke Vercel, isi dua variabel env yang sama. `vercel.json` 
 | 16_seed_unit_kerja | struktur organisasi BPKAD (dari daftar UNITS E-Kepegawaian) | 1 |
 | migrasi/17_migrasi_ekepegawaian | memindahkan data lama (jalankan blok demi blok, hanya sekali) | 1 |
 | 18_pengguna | fungsi pendukung modul Pengguna + pengaman anti-terkunci | 1 |
+| 19_organisasi | pengaman hierarki unit (tanpa lingkaran, tanpa hapus unit yang dipakai) + ringkasan | 1 |
 
 ## Pengguna dan hak akses
 
@@ -48,6 +49,15 @@ Halaman `Sistem > Pengguna dan hak akses` (butuh hak `pengguna`):
 - Pengaman: Super Admin terakhir tidak bisa dicabut atau dinonaktifkan, dan hak "kelola pengguna" milik
   Super Admin terkunci. Pengaman ini tidak berlaku di SQL Editor sehingga keadaan darurat tetap bisa diperbaiki.
 - Perubahan hak akses role baru berlaku bagi pengguna yang sedang login setelah mereka memuat ulang halaman.
+
+## Struktur organisasi
+
+Halaman `Sistem > Struktur organisasi` (butuh hak `organisasi`): pohon unit kerja dengan jumlah akun/pegawai/sub unit,
+tambah unit atau sub unit, ubah nama/kode/induk/status, atur urutan (naik/turun), dan hapus unit kosong.
+- Unit tidak dapat dipindahkan ke bawah turunannya sendiri.
+- Unit yang masih dipakai (akun, pegawai, sub unit, atau data lain) tidak dapat dihapus; nonaktifkan saja.
+  Tanpa pengaman ini, menghapus unit mengosongkan unit kerja semua akun di dalamnya dan cakupan datanya hilang diam-diam.
+- Kode unit dipakai pada nomor surat; isi kode untuk unit yang akan dipakai di format nomor.
 
 ## Kepegawaian (hasil peleburan E-Kepegawaian)
 

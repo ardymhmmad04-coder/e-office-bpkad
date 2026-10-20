@@ -17,8 +17,16 @@ export function pesanError(err) {
   }
   if (kode === '23P01') return 'Jadwal bentrok dengan pemakaian lain pada waktu yang sama.'
   if (kode === '23505') return 'Data yang sama sudah ada.'
-  if (kode === '23503') return 'Data ini masih terhubung dengan data lain.'
-  if (kode === '23514') return 'Isian tidak memenuhi aturan yang berlaku. Periksa kembali nilainya.'
+  // Pesan buatan sendiri dari trigger database (sudah berbahasa Indonesia) ditampilkan apa adanya;
+  // pesan bawaan Postgres diganti kalimat yang lebih ramah.
+  if (kode === '23503') {
+    return pesan.includes('violates foreign key') ? 'Data ini masih terhubung dengan data lain.' : pesan
+  }
+  if (kode === '23514') {
+    return pesan.includes('violates check constraint')
+      ? 'Isian tidak memenuhi aturan yang berlaku. Periksa kembali nilainya.'
+      : pesan
+  }
   if (kode === '23502') return 'Ada isian wajib yang belum diisi.'
 
   return pesan || 'Terjadi kesalahan tak terduga.'

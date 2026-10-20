@@ -7,10 +7,12 @@ export default [
     component: () => import('./views/PenggunaView.vue'),
     meta: { modul: 'pengguna', judul: 'Pengguna dan hak akses' },
   },
-  placeholder('sistem/organisasi', 'organisasi', {
-    modul: 'organisasi', judul: 'Struktur organisasi', tahap: 1,
-    deskripsi: 'Hierarki unit kerja. Cakupan data "unit kerja" mengikuti struktur ini, termasuk unit di bawahnya.',
-  }),
+  {
+    path: 'sistem/organisasi',
+    name: 'organisasi',
+    component: () => import('./views/OrganisasiView.vue'),
+    meta: { modul: 'organisasi', judul: 'Struktur organisasi' },
+  },
   placeholder('sistem/master-data', 'master-data', {
     modul: 'master_data', judul: 'Master data', tahap: 1,
     deskripsi: 'Kode klasifikasi, jenis surat, ruang rapat, dan kendaraan.',
