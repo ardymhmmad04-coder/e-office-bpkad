@@ -1,0 +1,86 @@
+# E-Office BPKAD
+
+Portal internal ASN Badan Pengelolaan Keuangan dan Aset Daerah Provinsi Kalimantan Selatan.
+
+Stack: Vue 3 + Vite + Vue Router + Pinia + Tailwind CSS 4 + Supabase (database, auth, storage), deploy di Vercel.
+
+## Menjalankan
+
+1. Buat project Supabase, lalu salin `.env.example` menjadi `.env` dan isi URL serta **anon key** (bukan service_role).
+2. Jalankan file di folder `sql/` **satu per satu, berurutan**, di Supabase SQL Editor (lihat tabel di bawah). Setiap file aman dijalankan ulang.
+3. Buat akun pertama di Supabase: Authentication > Users > Add user. Profil dan role `pegawai` terbentuk otomatis.
+4. Jadikan akun itu Super Admin dengan Blok D di akhir `sql/04_seed_rbac.sql` (ganti UUID-nya).
+5. `npm install`, lalu `npm run dev`.
+
+Deploy: hubungkan repo ke Vercel, isi dua variabel env yang sama. `vercel.json` sudah mengatur rewrite untuk Vue Router.
+
+## Urutan SQL
+
+| File | Isi | Tahap |
+|---|---|---|
+| 01_core | unit_kerja, profiles | inti |
+| 02_rbac | role, permission, data scope, fungsi hak akses, RLS inti | inti |
+| 03_audit_log | audit_log + trigger audit | inti |
+| 04_seed_rbac | 5 role, daftar permission, hak bawaan | inti |
+| 05_tugas | Monitoring Tugas | 1 |
+| 06_dokumentasi | kegiatan, media, berita | 1 |
+| 07_dokumen_referensi | SOP, peraturan, pedoman, template | 1 |
+| 08_informasi | pengumuman, agenda, notifikasi | 1 |
+| 09_persuratan | klasifikasi, jenis surat, register, penomoran | 2 |
+| 10_arsip | arsip digital + pencarian | 2 |
+| 11_ruang_rapat | peminjaman ruang rapat | 2 |
+| 12_kendaraan | kendaraan dinas | 2 |
+| 13_layanan_umum | ATK, sarana prasarana, laporan kerusakan | 2 |
+| 14_storage | bucket file + policy | 2 |
+
+Tabel Kepegawaian (data pegawai, cuti, KGB, kenaikan pangkat, pensiun) belum ada di sini:
+akan disusun setelah skema E-Kepegawaian yang sudah berjalan dikirim, agar tidak menebak kolom.
+
+## Model hak akses
+
+`User -> Role -> Permission -> Data scope`
+
+- Permission: VIEW, CREATE, EDIT, DELETE, PROCESS, APPROVE, ASSIGN, PRINT, MANAGE.
+- MANAGE mencakup semua aksi **kecuali APPROVE**: Super Admin tidak otomatis menggantikan persetujuan pimpinan.
+- Data scope: `sendiri`, `unit_kerja` (unit sendiri **dan semua unit di bawahnya**), `seluruh`.
+- Hak tambahan per pengguna (Operator Khusus) lewat tabel `user_permissions`.
+- Semua aturan ditegakkan di database (RLS dan trigger), bukan hanya di tampilan. Frontend memakai
+  `my_permissions()` untuk menyembunyikan menu/tombol; logikanya (`stores/permission.js`) sama dengan `perm_scope()` di SQL.
+
+Agar cakupan `unit_kerja` bekerja, isi `unit_kerja_id` pada profil tiap pengguna. Kepala BPKAD ditempatkan
+di unit induk teratas sehingga otomatis mencakup seluruh unit.
+
+## Aturan alur yang sudah dijaga database
+
+- Tugas: PIC hanya mengubah progres/status; status `selesai` hanya oleh pemegang APPROVE (verifikasi).
+- Berita: draft, review, menunggu persetujuan, disetujui (APPROVE), terbit (PROCESS).
+- Surat: nomor hanya lewat `terbitkan_nomor_surat()` (penghitung atomik, nomor UNIQUE), tidak bisa diisi manual.
+- Ruang rapat dan kendaraan: jadwal bentrok ditolak (kode 23P01).
+- Pengajuan (ruang, kendaraan, ATK, sarana, kerusakan): pemohon hanya dapat mengubah/membatalkan selama status awal.
+- Pengguna biasa tidak dapat mengubah NIP, jabatan, unit kerja, atau status akunnya sendiri.
+
+## Asumsi yang perlu Anda koreksi
+
+- `ASSIGN` ditambahkan sebagai permission (contoh "Kepala Bidang" di dokumen memakainya, tetapi tidak ada di daftar 8 permission).
+- Format nomor surat di `jenis_surat.format_nomor` hanya contoh; sesuaikan dengan tata naskah dinas BPKAD.
+- Modul Kendaraan dinas ada di alur utama dan roadmap tetapi tidak di struktur menu; saya sertakan.
+- Persetujuan ruang rapat, ATK, dan sarana oleh Admin/Operator; cuti/KGB/kenaikan pangkat/pensiun, kendaraan, dan berita oleh Pimpinan.
+- "Sarana dan prasarana" dimodelkan sebagai permintaan layanan (bukan inventaris).
+- Pensiun ada di struktur menu tetapi tidak masuk tahap mana pun di roadmap.
+
+## Struktur
+
+```
+src/
+  config/menu.js           menu sidebar + label modul/aksi
+  lib/                     supabase client, penerjemah pesan error
+  stores/                  auth.js, permission.js (Pinia)
+  composables/usePermission.js
+  router/index.js          guard login + hak akses per rute
+  layouts/                 DefaultLayout, AuthLayout
+  components/common/       sidebar, topbar, placeholder modul
+  modules/<modul>/         routes.js + views/ (satu folder per modul)
+sql/                       skema database, 14 blok
+```
+
+Rute modul yang belum dibangun memakai `ModulePlaceholder`; ganti dengan view asli saat modulnya dikerjakan.
