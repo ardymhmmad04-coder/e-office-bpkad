@@ -9,10 +9,12 @@ export default [
     component: () => import('./views/PegawaiView.vue'),
     meta: { modul: 'pegawai', judul: 'Data pegawai' },
   },
-  placeholder('kepegawaian/cuti', 'cuti', {
-    modul: 'cuti', judul: 'Cuti', tahap: 1,
-    deskripsi: dasar + 'Alur: draf, Kasubbag, Kabid, lalu persetujuan akhir pejabat dengan nomor surat otomatis.',
-  }),
+  {
+    path: 'kepegawaian/cuti',
+    name: 'cuti',
+    component: () => import('./views/CutiView.vue'),
+    meta: { modul: 'cuti', judul: 'Cuti' },
+  },
   placeholder('kepegawaian/kgb', 'kgb', {
     modul: 'kgb', judul: 'KGB', tahap: 1,
     deskripsi: dasar + 'Jatuh tempo dihitung dari TMT KGB pada data pegawai, seperti sebelumnya.',

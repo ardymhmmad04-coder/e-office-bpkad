@@ -37,6 +37,7 @@ Deploy: hubungkan repo ke Vercel, isi dua variabel env yang sama. `vercel.json` 
 | migrasi/17_migrasi_ekepegawaian | memindahkan data lama (jalankan blok demi blok, hanya sekali) | 1 |
 | 18_pengguna | fungsi pendukung modul Pengguna + pengaman anti-terkunci | 1 |
 | 19_organisasi | pengaman hierarki unit (tanpa lingkaran, tanpa hapus unit yang dipakai) + ringkasan | 1 |
+| 20_cuti | jenis cuti, hari kerja & libur, sisa cuti, alur persetujuan (final oleh Admin) | 1 |
 
 ## Pengguna dan hak akses
 
@@ -71,6 +72,27 @@ Halaman `Kepegawaian > Data pegawai` (hak `pegawai`): daftar ASN/PPPK/PJLP denga
 - Pegawai hasil migrasi yang unitnya belum terpetakan ditandai "(belum dipetakan)"; filter "Belum punya unit kerja"
   membantu melengkapinya.
 - Belum ada: impor/ekspor Excel, serta halaman KGB, Kenaikan pangkat, dan Pensiun (dihitung dari data di halaman ini).
+
+## Cuti
+
+Halaman `Kepegawaian > Cuti` (hak `cuti`). Alur: draf -> Kasubbag -> Kabid -> **persetujuan akhir oleh Admin** (menerbitkan nomor surat).
+- **Pegawai:** membuat dan mengajukan cuti sendiri, melihat alurnya, membatalkan selama masih draf atau tahap Kasubbag.
+- **Pejabat (Kasubbag/Kabid, hak APPROVE):** menyetujui atau menolak pada tahap 1 dan 2 untuk pegawai di unitnya.
+- **Admin (hak PROCESS):** dapat membuat/mengajukan atas nama pegawai, mencatat tahap 1 dan 2 atas nama pejabat (seperti di
+  E-Kepegawaian lama), memberi persetujuan akhir, dan membatalkan. Persetujuan akhir **hanya** Admin.
+- Semua perubahan status lewat fungsi database (`cuti_ajukan`, `cuti_setujui`, `cuti_tolak`, `cuti_batalkan`); pelaku dan waktu
+  dicatat server, urutan tahap dijaga, dan nomor surat `NNN/CUTI/BPKAD/<tahun>` diterbitkan secara atomik.
+- **Jumlah hari dihitung server:** Senin-Jumat tanpa hari libur nasional (pengaturan `libur_<tahun>`); Cuti Melahirkan dihitung hari
+  kalender. Tahun cuti mengikuti tanggal mulai. Nilai hari dari klien diabaikan.
+- **Sisa cuti:** alokasi tahun itu (default `def_alokasi_cuti`) + sisa tahun lalu (dibatasi `carry_over_max`, dapat dimatikan lewat
+  `carry_over_enabled`, atau ditimpa per pegawai lewat `alokasi_cuti.carryover_override`) - cuti tahunan yang sudah disetujui.
+  Jenis dengan `boleh_lebih = false` (Cuti Tahunan) diblokir bila melebihi sisa; untuk pengecualian, sesuaikan alokasi pegawai.
+- Pengajuan yang tanggalnya beririsan dengan pengajuan aktif milik pegawai yang sama ditolak (batalkan yang lama dulu).
+- **WhatsApp:** tombol membuka wa.me dengan pesan terisi dari templat `wa_tmpl_*` (atau templat bawaan); pengiriman otomatis tidak
+  ada karena token tidak boleh berada di browser (perlu Edge Function).
+- Daftar libur 2025 dan 2026 diisi dari daftar bawaan E-Kepegawaian lama bila belum ada. **Periksa kembali** dengan keputusan bersama
+  libur nasional dan cuti bersama resmi, dan isi tahun berikutnya.
+- Belum ada: pengelolaan alokasi dan libur lewat layar, cetak surat cuti, dan rekap/ekspor.
 
 ## Kepegawaian (hasil peleburan E-Kepegawaian)
 

@@ -28,7 +28,7 @@ export const useAuthStore = defineStore('auth', () => {
     const [hasilProfil] = await Promise.all([
       supabase
         .from('profiles')
-        .select('id, nip, nama, email, jabatan, unit_kerja_id, foto_url, aktif, unit_kerja:unit_kerja_id(nama)')
+        .select('id, nip, nama, email, jabatan, unit_kerja_id, pegawai_id, foto_url, aktif, unit_kerja:unit_kerja_id(nama)')
         .eq('id', uid)
         .maybeSingle(), // maybeSingle: tidak error 406 bila baris belum ada
       permission.muat(),
