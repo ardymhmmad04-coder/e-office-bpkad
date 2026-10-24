@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
+import { RouterLink } from 'vue-router'
 import { Plus } from 'lucide-vue-next'
 import { supabase } from '@/lib/supabase'
 import { pesanError } from '@/lib/errors'
@@ -16,6 +17,7 @@ const KOLOM_CUTI =
 
 const { can } = usePermission()
 const bolehBuat = computed(() => can('cuti', 'CREATE'))
+const bolehPengaturan = computed(() => can('cuti', 'PROCESS'))
 
 const daftar = ref([])
 const pegawai = ref([])
@@ -93,15 +95,20 @@ function setelahBerubah(pesan) {
         yang menerbitkan nomor surat.
       </p>
     </div>
-    <button
-      v-if="bolehBuat"
-      type="button"
-      class="flex items-center gap-1.5 rounded-md bg-barito-700 px-4 py-2 text-sm font-semibold text-white hover:bg-barito-800"
-      @click="panel = { mode: 'editor', id: null }"
-    >
-      <Plus :size="16" />
-      Ajukan cuti
-    </button>
+    <div class="flex flex-wrap items-center gap-2">
+      <RouterLink v-if="bolehPengaturan" :to="{ name: 'cuti-pengaturan' }" class="rounded-md border border-garis bg-white px-4 py-2 text-sm hover:bg-mist">
+        Pengaturan cuti
+      </RouterLink>
+      <button
+        v-if="bolehBuat"
+        type="button"
+        class="flex items-center gap-1.5 rounded-md bg-barito-700 px-4 py-2 text-sm font-semibold text-white hover:bg-barito-800"
+        @click="panel = { mode: 'editor', id: null }"
+      >
+        <Plus :size="16" />
+        Ajukan cuti
+      </button>
+    </div>
   </div>
 
   <p v-if="sukses" role="status" class="mt-5 rounded-md bg-sukses-muda px-4 py-2.5 text-sm text-sukses">{{ sukses }}</p>

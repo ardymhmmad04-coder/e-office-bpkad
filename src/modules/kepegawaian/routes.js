@@ -15,6 +15,12 @@ export default [
     component: () => import('./views/CutiView.vue'),
     meta: { modul: 'cuti', judul: 'Cuti' },
   },
+  {
+    path: 'kepegawaian/cuti/pengaturan',
+    name: 'cuti-pengaturan',
+    component: () => import('./views/CutiPengaturanView.vue'),
+    meta: { modul: 'cuti', aksi: 'PROCESS', judul: 'Pengaturan cuti' },
+  },
   placeholder('kepegawaian/kgb', 'kgb', {
     modul: 'kgb', judul: 'KGB', tahap: 1,
     deskripsi: dasar + 'Jatuh tempo dihitung dari TMT KGB pada data pegawai, seperti sebelumnya.',
